@@ -94,18 +94,14 @@ class Submission {
     return sum;
   }
 
-  getAverage() {
+getAverage() {
     if (this.total_counts === 0) {
         console.log("[DEBUG] No reactions yet. Returning 0.");
         return 0; // Prevent division by zero
     }
-
-    const sum = this.getSum();
-    console.log(`[DEBUG] Calculating average: Sum = ${sum}, Total counts = ${this.total_counts}`);
-    
-    console.log(`[DEBUG] Reaction counts: ${this.reaction_counts}`);
-    return sum / this.total_counts;
- }
+    console.log(`[DEBUG] Sum: ${this.getSum()}, Total Counts: ${this.total_counts}`);
+    return this.getSum() / this.total_counts;
+}
 
  
 }

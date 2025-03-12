@@ -3,11 +3,12 @@ const Submission = require("./Submission.js");
 
 class Competition {
   constructor(serverid, adminrole) {
-    this.server_id = serverid; //Discord ID of specific server
-    this.admin_id = adminrole; //"admin" role ID that can do the judge commands
-    this.submissions = []; //collects the submissions
+    this.server_id = serverid;
+    this.admin_id = adminrole;
+    this.submissions = [];
     this.submissionIndex = 0;
-    console.log("Successfully made a Comp server"); // not sure if I should keep this
+    this.messageToSubmission = new Map(); // 🔹 Map to track message IDs → submission indices
+    console.log("Successfully made a Comp server");
   }
 
   checkadmin(member) { //checks if the user has admin to do the judge commands
@@ -17,15 +18,21 @@ class Competition {
     }
   }
 
-  judge(previousMessage) { // creates judging list here
-	  this.submissions[this.submissionIndex] = new Submission();
-      previousMessage.submissionIndex = this.submissionIndex;
-      console.log("Identifier:", previousMessage.submissionIndex);
-      this.submissionIndex++;
+  judge(previousMessage) {
+    const submission = new Submission();
+    this.submissions[this.submissionIndex] = submission;
+
+    // 🔹 Store message ID -> submission index
+    this.messageToSubmission.set(previousMessage.id, this.submissionIndex);
+    console.log(`[DEBUG] Created submission at index ${this.submissionIndex} for message ID: ${previousMessage.id}`);
+
+    this.submissionIndex++;
   }
+
 
   async average(message) {
       if (this.submissions.length === 0) { 
+          console.log("[DEBUG] No submissions exist.");
           return message.channel.send("No submissions have been recorded.");
       }
 
@@ -34,7 +41,8 @@ class Competition {
           .setTitle("Averages for Challenge");
 
       this.submissions.forEach((submission, index) => {
-          embed.addField(`Submission ${index + 1}`, `${submission.getAverage()}`);
+        console.log(`[DEBUG] Submission ${index} - Total Counts: ${submission.total_counts}, Reaction Counts: ${submission.reaction_counts}`);
+        embed.addField(`Submission ${index + 1}`, `${submission.getAverage()}`);
       });
 
       try {

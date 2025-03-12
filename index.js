@@ -232,6 +232,9 @@ client.on("messageCreate", async (message) => {
   if (message.guild.id === "1131317607539167234") { 
     ALLOWED_ROLE_ID = "1146413264650125342";
   }
+  if (message.guild.id === "1347075302790008832") { //Vanuatu server
+    ALLOWED_ROLE_ID = "1349214817139036241";
+  }
 
   // GET OR CREATE COMPETITION INSTANCE
   if (!competitions.has(message.guild.id)) {
@@ -269,25 +272,41 @@ client.on("messageCreate", async (message) => {
 });
 
 client.on("messageReactionAdd", async (reaction, user) => {
-  if (user.bot) return;
-  if (!reaction.message.submissionIndex) return;
+    if (user.bot) return;
+    if (!reaction.message.guild) return; // Prevent DMs from breaking the bot
 
-  const comp = new Competition(reaction.message.guild.id, "ALLOWED_ROLE_ID");
-  const index = reactions.indexOf(reaction.emoji.name);
-  if (index === -1) return;
-  
-  comp.submissions[reaction.message.submissionIndex].increase(index);
+    const guildId = reaction.message.guild.id;
+    if (!competitions.has(guildId)) return;
+
+    const Comp = competitions.get(guildId);
+
+    // 🔹 Get submission index from stored message ID
+    const submissionIndex = Comp.messageToSubmission.get(reaction.message.id);
+    if (submissionIndex === undefined) {
+        console.log("[DEBUG] No submission index found for this message.");
+        return;
+    }
+
+    // 🔹 Get submission and update reactions
+    const submission = Comp.submissions[submissionIndex];
+    const emojiIndex = submission.reactions.indexOf(reaction.emoji.name);
+
+    if (emojiIndex !== -1) {
+        submission.increase(emojiIndex);
+        console.log(`[DEBUG] Submission ${submissionIndex} - Added reaction: ${reaction.emoji.name}`);
+    }
 });
 
 client.on("messageReactionRemove", async (reaction, user) => {
-  if (user.bot) return;
-  if (!reaction.message.submissionIndex) return;
+    if (user.bot) return;
+    const guildId = reaction.message.guild.id;
+    if (!competitions.has(guildId)) return;
 
-  const comp = new Competition(reaction.message.guild.id, "ALLOWED_ROLE_ID");
-  const index = reactions.indexOf(reaction.emoji.name);
-  if (index === -1) return;
+    const Comp = competitions.get(guildId);
+    const submissionIndex = Comp.messageToSubmission.get(reaction.message.id);
+    if (submissionIndex === undefined) return;
 
-  comp.submissions[reaction.message.submissionIndex].decrease(index);
+    Comp.submissions[submissionIndex].decrease(reactions.indexOf(reaction.emoji.name));
 });
 
   //}
