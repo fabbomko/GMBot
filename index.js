@@ -212,9 +212,9 @@ const reactions = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️�
 //let submissionIndex = 0;
 
 // the JUDGE commands
-client.on("message", (message) => {
-  if (message.content === "!gm judge" || message.content === "!gm average" || message.content === "!gm reset" ) {
-    client.on("messageCreate", async (message) => {
+//client.on("message", (message) => {
+  //if (message.content === "!gm judge" || message.content === "!gm average" || message.content === "!gm reset" ) {
+client.on("messageCreate", async (message) => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
 
   const member = message.guild.members.cache.get(message.author.id);
@@ -223,7 +223,7 @@ client.on("message", (message) => {
   const args = message.content.slice(prefix.length).trim().split(/ +/);
   const command = args.shift().toLowerCase();
   
-  const ALLOWED_ROLE_ID = "0"; // Allowed role ID      
+  let ALLOWED_ROLE_ID = "0"; // Allowed role ID      
   if (message.guild.id === "1304251077041979472") { //if the user is in Felinia's comp
     ALLOWED_ROLE_ID = "1304550152450736191";
     //return message.reply("You don't have permission to use this command."); //they don't have the admin role
@@ -267,28 +267,30 @@ client.on("message", (message) => {
   }
 });
 
-	client.on("messageReactionAdd", async (reaction, user) => {
+client.on("messageReactionAdd", async (reaction, user) => {
   if (user.bot) return;
   if (!reaction.message.submissionIndex) return;
 
+  const comp = new Competition(reaction.message.guild.id, "ALLOWED_ROLE_ID");
   const index = reactions.indexOf(reaction.emoji.name);
   if (index === -1) return;
-
-  submissions[reaction.message.submissionIndex].increase(index);
+  
+  comp.submissions[reaction.message.submissionIndex].increase(index);
 });
 
-	client.on("messageReactionRemove", async (reaction, user) => {
+client.on("messageReactionRemove", async (reaction, user) => {
   if (user.bot) return;
   if (!reaction.message.submissionIndex) return;
 
+  const comp = new Competition(reaction.message.guild.id, "ALLOWED_ROLE_ID");
   const index = reactions.indexOf(reaction.emoji.name);
   if (index === -1) return;
 
-  submissions[reaction.message.submissionIndex].decrease(index);
+  comp.submissions[reaction.message.submissionIndex].decrease(index);
 });
 
-  }
-});
+  //}
+//});
 
 // help command list
 const page1 = new MessageEmbed()
@@ -404,8 +406,8 @@ client.on("message", async (message) => {
   }
 });
 
-// note: this is the old discord token that Discord somehow AUTOMATICALLY detected it and shut off so I can't put the new one
-client.login('MTM0NTk3MjgyMjgxNTgwMTQxNg.GPFX0x.RaIE6ODRKyWjEjkbNB7iq8uomiAQO6mOkUCPc0');
+
+client.login('0');
 
 
 
