@@ -214,6 +214,8 @@ const reactions = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️�
 // the JUDGE commands
 //client.on("message", (message) => {
   //if (message.content === "!gm judge" || message.content === "!gm average" || message.content === "!gm reset" ) {
+const competitions = new Map(); // Stores Competition instances per server
+
 client.on("messageCreate", async (message) => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
 
@@ -222,45 +224,44 @@ client.on("messageCreate", async (message) => {
 
   const args = message.content.slice(prefix.length).trim().split(/ +/);
   const command = args.shift().toLowerCase();
-  
-  let ALLOWED_ROLE_ID = "0"; // Allowed role ID      
-  if (message.guild.id === "1304251077041979472") { //if the user is in Felinia's comp
+
+  let ALLOWED_ROLE_ID = "0";  
+  if (message.guild.id === "1304251077041979472") { 
     ALLOWED_ROLE_ID = "1304550152450736191";
-    //return message.reply("You don't have permission to use this command."); //they don't have the admin role
-    }
-  
-  if (message.guild.id === "1131317607539167234") { //if the user is in GM
+  }
+  if (message.guild.id === "1131317607539167234") { 
     ALLOWED_ROLE_ID = "1146413264650125342";
   }
-  
-  // CREATING COMPETITION OBJECT
- const Comp = new Competition(message.guild.id, ALLOWED_ROLE_ID);
-  
+
+  // GET OR CREATE COMPETITION INSTANCE
+  if (!competitions.has(message.guild.id)) {
+    competitions.set(message.guild.id, new Competition(message.guild.id, ALLOWED_ROLE_ID));
+  }
+  const Comp = competitions.get(message.guild.id);
+
   switch (command) {
     case "judge":
+      if (Comp.checkadmin(member) == 0)
+          return message.channel.send("You don't have permission to use this command.");
       const messages = await message.channel.messages.fetch({ limit: 2 });
       const previousMessage = messages.last();
-
-      if (!previousMessage) {
-        return message.channel.send("No previous message found to judge.");
-      }
-
-      for (const reaction of reactions) {
-        await previousMessage.react(reaction);
-      }
-
+      if (!previousMessage) return message.channel.send("No previous message found to judge.");
+      for (const reaction of reactions) await previousMessage.react(reaction);
       Comp.judge(previousMessage);
       break;
 
     case "average":
-      if (Comp.submissions.length === 0) { //will access property of Competition object to see if there are any subs so far
-        return message.channel.send("No submissions entered.");
-      }
-
+      if (Comp.checkadmin(member) == 0)
+          return message.channel.send("You don't have permission to use this command.");
+          
+      if (Comp.submissions.length === 0) return message.channel.send("No submissions entered.");
       await Comp.average(message);
       break;
 
     case "reset":
+      if (Comp.checkadmin(member) == 0)
+          return message.channel.send("You don't have permission to use this command.");
+          
       Comp.reset();
       message.channel.send("Submissions have been reset.");
       break;
