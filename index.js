@@ -404,7 +404,7 @@ client.on("message", async (message) => {
   }
 });
 
-
+// note: this is the old discord token that Discord somehow AUTOMATICALLY detected it and shut off so I can't put the new one
 client.login('MTM0NTk3MjgyMjgxNTgwMTQxNg.GPFX0x.RaIE6ODRKyWjEjkbNB7iq8uomiAQO6mOkUCPc0');
 
 
