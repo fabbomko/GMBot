@@ -70,17 +70,21 @@ class Submission {
     console.log("Successfully made a submission");
   }
 
-  increase(number) {
-    if (number < 0 || number > 10) return; // Prevent invalid indexes
+ increase(number) {
+    if (number < 0 || number > 10) return;
     this.reaction_counts[number]++;
     this.total_counts++;
-  }
+    
+    console.log(`[DEBUG] Increased index ${number}: ${this.reaction_counts[number]}, Total: ${this.total_counts}`);
+ }
 
-  decrease(number) {
+ decrease(number) {
     if (number < 0 || number > 10 || this.reaction_counts[number] <= 0) return;
     this.reaction_counts[number]--;
     this.total_counts--;
-  }
+
+    console.log(`[DEBUG] Decreased index ${number}: ${this.reaction_counts[number]}, Total: ${this.total_counts}`);
+ }
 
   getSum() {
     let sum = 0;
@@ -92,12 +96,17 @@ class Submission {
 
   getAverage() {
     if (this.total_counts === 0) {
-        console.log("No reactions yet. Returning 0.");
+        console.log("[DEBUG] No reactions yet. Returning 0.");
         return 0; // Prevent division by zero
     }
-    console.log(`Sum: ${this.getSum()}, Total: ${this.total_counts}`);
-    return this.getSum() / this.total_counts;
+
+    const sum = this.getSum();
+    console.log(`[DEBUG] Calculating average: Sum = ${sum}, Total counts = ${this.total_counts}`);
+    
+    console.log(`[DEBUG] Reaction counts: ${this.reaction_counts}`);
+    return sum / this.total_counts;
  }
+
  
 }
 
